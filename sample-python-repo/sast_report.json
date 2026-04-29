@@ -1,0 +1,143 @@
+{
+  "scan_timestamp": "2026-04-29T13:41:27.884328",
+  "model": "qwen2.5-coder:7b",
+  "repo": "/Users/nan/ai-devops/sample-python-repo",
+  "files_scanned": 3,
+  "results": [
+    {
+      "file": "app.py",
+      "issues": [
+        {
+          "id": "SAST-001",
+          "severity": "CRITICAL",
+          "category": "Hardcoded Secret",
+          "line_range": "10",
+          "description": "The secret key is hardcoded in the source code.",
+          "recommendation": "Store the secret key in an environment variable and retrieve it using os.getenv().",
+          "code": "SECRET_KEY = os.getenv('SECRET_KEY')"
+        },
+        {
+          "id": "SAST-002",
+          "severity": "CRITICAL",
+          "category": "Debug Mode Enabled in Production",
+          "line_range": "13",
+          "description": "The debug mode is enabled, which can expose sensitive information and allow remote code execution.",
+          "recommendation": "Disable debug mode in production by setting app.config['DEBUG'] = False.",
+          "code": "app.config['DEBUG'] = False"
+        },
+        {
+          "id": "SAST-003",
+          "severity": "CRITICAL",
+          "category": "Insecure Password Handling",
+          "line_range": "26-27",
+          "description": "Plaintext passwords are stored and checked, which is insecure.",
+          "recommendation": "Use a secure password hashing algorithm like bcrypt to store and verify passwords.",
+          "code": "// Use bcrypt for storing and verifying passwords"
+        },
+        {
+          "id": "SAST-004",
+          "severity": "CRITICAL",
+          "category": "SQL Injection Vulnerability",
+          "line_range": "39-41",
+          "description": "String concatenation is used to construct SQL queries, which can lead to SQL injection.",
+          "recommendation": "Use parameterized queries to prevent SQL injection.",
+          "code": "cursor.execute('SELECT * FROM users WHERE username = ?', (username,))"
+        },
+        {
+          "id": "SAST-005",
+          "severity": "CRITICAL",
+          "category": "Insecure Deserialization",
+          "line_range": "49-52",
+          "description": "Pickle deserialization from user input can lead to remote code execution.",
+          "recommendation": "Avoid using pickle for serialization and deserialization. Consider using a safer format like JSON.",
+          "code": "// Avoid using pickle for deserialization"
+        },
+        {
+          "id": "SAST-006",
+          "severity": "CRITICAL",
+          "category": "Bare Except Clause",
+          "line_range": "57-61",
+          "description": "A bare except clause hides all errors, making debugging difficult and potentially masking security issues.",
+          "recommendation": "Catch specific exceptions instead of using a bare except clause.",
+          "code": "// Catch specific exceptions"
+        },
+        {
+          "id": "SAST-007",
+          "severity": "CRITICAL",
+          "category": "Insecure Network Binding",
+          "line_range": "65",
+          "description": "The application is bound to all interfaces, which can expose it to attacks from the network.",
+          "recommendation": "Bind the application to a specific IP address or localhost only.",
+          "code": "app.run(host='127.0.0.1', port=5000)"
+        }
+      ],
+      "summary": {
+        "total_issues": 7,
+        "critical": 7,
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      }
+    },
+    {
+      "file": "database/db_handler.py",
+      "issues": [
+        {
+          "id": "SAST-001",
+          "severity": "CRITICAL",
+          "category": "SQL Injection",
+          "line_range": "23-24",
+          "description": "Direct string formatting in SQL query is vulnerable to SQL injection.",
+          "recommendation": "Use parameterized queries to prevent SQL injection.",
+          "code": "result = execute_query(f\"SELECT * FROM users WHERE id = ?\", (user_id,))"
+        },
+        {
+          "id": "SAST-002",
+          "severity": "INFO",
+          "category": "Code Quality",
+          "line_range": "19-28",
+          "description": "Inconsistent return types in function.",
+          "recommendation": "Ensure consistent return types or add type hints.",
+          "code": "// Function signature with type hints\ndef get_user_by_id(user_id: int) -> Union[Dict[str, Any], None]:\n    try:\n        result = execute_query(f\"SELECT * FROM users WHERE id = ?\", (user_id,))\n        if result:\n            return result[0]\n        return None\n    except Exception as e:\n        return str(e)"
+        },
+        {
+          "id": "SAST-003",
+          "severity": "INFO",
+          "category": "Code Quality",
+          "line_range": "28",
+          "description": "Returning exception as string hides the error details.",
+          "recommendation": "Log the exception and return a user-friendly message or error code.",
+          "code": "// Log the exception and return a user-friendly message\nimport logging\nlogging.basicConfig(level=logging.ERROR)\ndef get_user_by_id(user_id: int) -> Union[Dict[str, Any], None]:\n    try:\n        result = execute_query(f\"SELECT * FROM users WHERE id = ?\", (user_id,))\n        if result:\n            return result[0]\n        return None\n    except Exception as e:\n        logging.error(str(e))\n        return {'error': 'An error occurred'}"
+        }
+      ],
+      "summary": {
+        "total_issues": 3,
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      }
+    },
+    {
+      "file": "utils/auth.py",
+      "issues": [
+        {
+          "id": "SAST-001",
+          "severity": "CRITICAL",
+          "category": "Weak cryptography / token generation",
+          "line_range": "4-6",
+          "description": "Simple base64 encoding is not secure for generating tokens.",
+          "recommendation": "Use a more secure method such as JWT (JSON Web Tokens) with proper signing and expiration.",
+          "code": "import jwt\n\n# SECURITY ISSUE: Weak token generation\ndef generate_token(user_id):\n    # Use JWT for secure token generation\n    payload = {'user_id': user_id, 'exp': time.time() + 3600}\n    secret_key = os.getenv('JWT_SECRET_KEY')\n    return jwt.encode(payload, secret_key, algorithm='HS256')"
+        }
+      ],
+      "summary": {
+        "total_issues": 1,
+        "critical": 1,
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      }
+    }
+  ]
+}
